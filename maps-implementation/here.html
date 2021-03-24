@@ -1,0 +1,137 @@
+<html>
+
+<head>
+    <title>HERE Map</title>
+    <link rel="stylesheet" type="text/css" href="https://js.api.here.com/v3/3.1/mapsjs-ui.css" />
+    <style>
+        html,
+        body {
+            border: 0;
+            margin: 0;
+            padding: 0;
+        }
+
+        #map {
+            height: 100vh;
+            width: 100vw;
+        }
+
+        
+
+        .my-location {
+            height: 30px;
+            width: 30px;
+            position: fixed;
+            bottom: 200px;
+            right: 20px;
+            padding: 10px;
+            border-radius: 50%;
+            border: solid 1px blueviolet;
+            cursor: pointer;
+        }
+        .my-location .fill {
+            height: 100%;
+            width: 100%;
+            border-radius: 50%;
+            background-color: blue;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+
+    <div title="get current location" class="my-location" onclick="focusLocation()">
+        <div class="fill"></div>
+    </div>
+
+    <script src="https://js.api.here.com/v3/3.1/mapsjs-core.js"></script>
+    <script src="https://js.api.here.com/v3/3.1/mapsjs-service.js"></script>
+    <script src="https://js.api.here.com/v3/3.1/mapsjs-ui.js"></script>
+    <script src="https://js.api.here.com/v3/3.1/mapsjs-mapevents.js"></script>
+    <script async>
+        const platform = new H.service.Platform({ apikey: 'BGYuM0Tzk5KhTCN0PEAu6ubPHOwh60qIwSMOSV-TpqI' });
+        const defaultLayers = platform.createDefaultLayers();
+
+        window.addEventListener('resize', () => map.getViewPort().resize());
+
+        window.center = { lat: 37.773972, lng: -122.431297 };
+        let map;
+        const searchText = '1070 Lombard Street, San Francisco';
+
+        function updateLocation() {
+            if(navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((center) => {
+                    window.center = {
+                        lat: center.coords.latitude,
+                        lng: center.coords.longitude
+                    }
+                    console.log(center)
+                }, (errorPosition) => {
+                    console.log(errorPosition)
+                    alert('Geolocation permission denied')
+                })
+            }
+            else {
+                alert('Geolocation not supported')
+            }
+        }
+
+
+        updateLocation();
+        initMap(center);
+
+
+        function focusLocation() {
+            console.log('focus')
+            updateLocation();
+            map.setCenter(center)
+            addIcon(center);
+        }
+
+        function initMap(center) {
+            
+            map = new H.Map(document.getElementById('map'),
+                defaultLayers.vector.normal.map, {
+                center: center,
+                zoom: 13,
+                pixelRatio: window.devicePixelRatio || 1
+            });
+            const behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
+            const ui = H.ui.UI.createDefault(map, defaultLayers);
+
+            const locationOfMarker = center;
+            addIcon(locationOfMarker);
+            
+        }
+
+        function addIcon(location) {
+
+            // optionally - resize a larger PNG image to a specific size
+            var pngIcon = new H.map.Icon("icons/location.png", { size: { w: 56, h: 56 } });
+
+            // Create a marker using the previously instantiated icon:
+            var marker = new H.map.Marker(location, { icon: pngIcon });
+
+            // Add the marker to the map:
+            map.addObject(marker);
+
+        }
+
+        function locateLocation(searchText) {
+            //Begin geocoding
+            
+            const geocoder = platform.getGeocodingService();
+            geocoder.geocode({ searchText }, result => {
+                const location = result.Response.View[0].Result[0].Location.DisplayPosition;
+                const { Latitude : lat, Longitude: lng } = location;
+                var pngIcon = new H.map.Icon("icons/location.png", { size: { w: 56, h: 56 } });
+                const marker = new H.map.Marker({ lat, lng }, {icon: pngIcon});
+                map.addObject(marker);
+                map.setCenter({lat, lng});
+            });
+        }
+    </script>
+</body>
+
+</html>
