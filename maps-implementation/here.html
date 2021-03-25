@@ -80,8 +80,8 @@
         const defaultLayers = platform.createDefaultLayers();
 
         window.addEventListener('resize', () => map.getViewPort().resize());
-
-        window.center = { lat: 37.773972, lng: -122.431297 };
+        const query = parseQuery();
+        window.center = { lat: query.lat, lng: query.lng };
         let map;
 
         //Initialize routing service
@@ -230,6 +230,20 @@
                 displayRoute(center, dest)
             })
         }
+
+        function parseQuery() {
+            const href = location.href;
+            const queries = href.split('?')[1].split('&');
+            
+            const obj = {}
+            queries.forEach(query => {
+                const [key, value] = query.split('=');
+                obj[key] = value;
+            })
+            return obj;
+        }
+
+        // parseQuery();
     </script>
 </body>
 
