@@ -46,6 +46,9 @@ webcamButton.onclick = async function() {
     localStream.getTracks().forEach(track => {
         pc.addTrack(track, localStream);
     })
+    // removing audio for local stream
+    const [audioTrack] = localStream.getAudioTracks();
+    localStream.removeTrack(audioTrack);
 
     webcamVideo.srcObject = localStream;
     
@@ -53,6 +56,7 @@ webcamButton.onclick = async function() {
     
     pc.ontrack = function(event) {
         console.log('ontrack triggered', event)
+        hangupButton.disabled = false;
         event.streams[0].getTracks().forEach(track => {
             remoteStream.addTrack(track);
         });
@@ -149,5 +153,8 @@ answerButton.onclick = async function() {
 
 }
 
+hangupButton.onclick = function() {
+    location.reload();
+}
 
 
