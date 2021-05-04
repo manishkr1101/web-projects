@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grid</title>
+    <style>
+        html {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <h1>This is a Grid Game.</h1>
+    <button disabled id="btnCreate">new game</button>
+    <input type="text" id="txtGameId">
+    <button id="btnJoin">Join Game</button>
+    <div id="divPlayers"></div>
+    <div id="divBoard"></div>
+</body>
+<script>
+    const ws = new WebSocket("ws://192.168.1.4:8080");
+    let clientId = null; 
+    let gameId = null;
+    let playerColor;
+
+    const btnCreate = document.getElementById('btnCreate');
+    const btnJoin = document.getElementById('btnJoin');
+    const txtGameId = document.getElementById('txtGameId');
+    const divPlayers = document.getElementById('divPlayers');
+    const divBoard = document.getElementById('divBoard');
+
+    btnCreate.addEventListener('click', e => {
+        const payLoad = {
+            method: "create",
+            clientId: clientId
+        };
+
+        ws.send(JSON.stringify(payLoad));
+    })
+    btnJoin.addEventListener('click', e => {
+        if(gameId == null) gameId = txtGameId.value;
+
+        const payLoad = {
+            method: "join",
+            clientId: clientId,
+            gameId: gameId
+        };
+
+        ws.send(JSON.stringify(payLoad));
+    })
+    ws.onmessage = message => {
+        const response = JSON.parse(message.data);
+        console.log(response)
+        if(response.method == "connect") {
+            clientId = response.clientId;
+            btnCreate.disabled = false;
+        }
+        else if(response.method == "create") {
+            gameId = response.game.id;
+            txtGameId.value = gameId;
+        }
+        else if(response.method == "join") {
+            const game = response.game;
+
+            while(divPlayers.firstChild) 
+                divPlayers.removeChild(divPlayers.firstChild);
+
+            game.clients.forEach(c => {
+                const d = document.createElement('div');
+                d.style.width = "200px";
+                d.style.background = c.color;
+                d.textContent = c.clientId;
+                divPlayers.appendChild(d);
+
+                if(c.clientId == clientId) playerColor = c.color;
+            })
+
+            while(divBoard.firstChild) 
+                divBoard.removeChild(divBoard.firstChild);
+
+            for(let i = 0; i<game.balls; i++) {
+                const b = document.createElement('button');
+                b.id = "ball"+i;
+                b.textContent = i+1;
+                b.style.height = b.style.width = "100px";
+                b.addEventListener('click', e => {
+                    b.style.background = playerColor;
+                    const payLoad = {
+                        method: 'play',
+                        clientId: clientId,
+                        gameId: gameId,
+                        ballId: b.id,
+                        color: playerColor
+                    }
+
+                    ws.send(JSON.stringify(payLoad));
+                })
+                divBoard.appendChild(b);
+            }
+
+            if(game.state) {
+                for(const id in game.state) {
+                    document.getElementById(id).style.background = game.state[id];
+                }
+            }
+            
+        }
+        else if(response.method == 'update') { 
+            const {ballId, color} = response;
+            document.getElementById(ballId).style.background = color;
+        }
+    }
+</script>
+
+</html>

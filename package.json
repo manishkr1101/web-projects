@@ -1,0 +1,17 @@
+{
+  "name": "multiplayer-game",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "http-server -p 5000 & nodemon index.js",
+    "start": "node index.js & http-server"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "http-server": "^0.12.3",
+    "websocket": "^1.0.34"
+  }
+}
