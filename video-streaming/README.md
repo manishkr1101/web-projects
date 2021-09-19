@@ -13,3 +13,6 @@ Now approach will be the same for both method, but way might change. 🥱
 - Voila 🥳 we are done with writing, now let's try it.
 
 Hope You liked this :)
+
+### Bonus
+- Since url is visible so someone can download it, if it was static location of file. But we can restrict user who wants complete file to download.
