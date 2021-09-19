@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <!-- <link href="https://vjs.zencdn.net/7.7.6/video-js.css" rel="stylesheet" /> -->
+    <!-- Video.js base CSS -->
+    <link href="https://unpkg.com/video.js@7/dist/video-js.min.css" rel="stylesheet" />
+    <!-- City -->
+    <link href="https://unpkg.com/@videojs/themes@1/dist/city/index.css" rel="stylesheet" />
+
+    <!-- Fantasy -->
+<link href="https://unpkg.com/@videojs/themes@1/dist/fantasy/index.css" rel="stylesheet">
+
+<!-- Forest -->
+<link href="https://unpkg.com/@videojs/themes@1/dist/forest/index.css" rel="stylesheet">
+
+<!-- Sea -->
+<link href="https://unpkg.com/@videojs/themes@1/dist/sea/index.css" rel="stylesheet">
+
+    <!-- If you'd like to support IE8 (for Video.js versions prior to v7) -->
+    <script src="https://vjs.zencdn.net/ie8/1.1.2/videojs-ie8.min.js"></script>
+</head>
+
+<body>
+    <video id="my-player" class="video-js vjs-theme-forest" controls controlsList="nodownload" height="480px" width="720px">
+        <source src="/remote/vid.mp4" type="video/mp4">
+    </video>
+</body>
+<script src="https://vjs.zencdn.net/7.7.6/video.js"></script>
+<script defer>
+    var player = videojs('my-player',{
+        playbackRates: [0.75,1.0,1.25,1.5,1.75,2.0]
+    })
+
+    document.getElementById('my-player').addEventListener('keydown', evt => {
+        console.log(evt)
+        if(evt.code === 'Space'){
+            if(player.paused()){
+                player.play();
+            }
+            else {
+                player.pause();
+            }
+        } 
+        else if(evt.code === 'ArrowUp'){
+            let vol = player.volume();
+            vol = vol+0.1<1.0?vol+0.1:1.0;
+            player.volume(vol);
+        }
+        else if(evt.code === 'ArrowDown'){
+            let vol = player.volume()
+            vol = vol-0.1<0?0:vol-0.1;
+            player.volume(vol)
+        }
+    })
+    
+</script>
+
+</html>
